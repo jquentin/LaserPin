@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 [Serializable]
 public class Team
@@ -50,6 +51,9 @@ public class GameController : MonoBehaviour {
 	public int nbNodesAtStart = 5;
 	public float delayBetweenSpawns = 2f;
 	public int nbAttemptsAtCreating = 5;
+	public int timeGame = 30;
+	private float timeStart;
+	private bool isPlaying = false;
 
 	Vector3 _bottomLeft = Vector3.one * float.NaN;
 	Vector3 bottomLeft
@@ -121,9 +125,17 @@ public class GameController : MonoBehaviour {
 		}
 	}
 
-	IEnumerator Start()
+	void Play()
 	{
-		InitTeams();
+		foreach(Team team in teams)
+			team.score = 0;
+		isPlaying = true;
+		timeStart = Time.time;
+		StartCoroutine("GameCoroutine");
+	}
+
+	IEnumerator GameCoroutine()
+	{
 		for (int i = 0 ; i < nbNodesAtStart ; i++)
 		{
 			CreateNodes();
@@ -133,6 +145,28 @@ public class GameController : MonoBehaviour {
 			CreateNodes();
 			yield return new WaitForSeconds(delayBetweenSpawns);
 		}
+	}
+
+	void Start()
+	{
+		InitTeams();
+//		Play ();
+	}
+
+	void Update()
+	{
+		if (isPlaying && Time.time >= timeStart + (float)timeGame)
+			GameOver();
+		else if (!isPlaying && Input.GetMouseButtonUp(0))
+			Play ();
+	}
+
+	void GameOver()
+	{
+		isPlaying = false;
+		foreach(LaserNode node in FindObjectsOfType<LaserNode>())
+			Destroy(node.gameObject);
+		StopCoroutine("GameCoroutine");
 	}
 
 	void CreateNodes()
