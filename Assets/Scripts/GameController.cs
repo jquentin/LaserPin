@@ -82,27 +82,32 @@ public class GameController : MonoBehaviour {
 	public int countdownNbSeconds = 5;
 	private float timeStart;
 	private bool isPlaying = false;
-
-	Vector3 _bottomLeft = Vector3.one * float.NaN;
-	Vector3 bottomLeft
+	
+	Vector3 _gameBottomLeft = Vector3.one * float.NaN;
+	Vector3 gameBottomLeft
 	{
 		get
 		{
-			if (float.IsNaN(_bottomLeft.x))
-				_bottomLeft = Camera.main.ScreenToWorldPoint(Vector3.zero);
-			return _bottomLeft;
+			if (float.IsNaN(_gameBottomLeft.x))
+				_gameBottomLeft = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width * 0.05f, Screen.height * 0.1f));
+			return _gameBottomLeft;
 		}
 	}
-	Vector3 _topRight = Vector3.one * float.NaN;
-	Vector3 topRight
+	Vector3 _gameTopRight = Vector3.one * float.NaN;
+	Vector3 gameTopRight
 	{
 		get
 		{
-			if (float.IsNaN(_topRight.x))
-				_topRight = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height));
-			return _topRight;
+			if (float.IsNaN(_gameTopRight.x))
+				_gameTopRight = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width * 0.95f, Screen.height * 0.9f));
+			return _gameTopRight;
 		}
 	}
+	
+	float gameLeft { get { return gameBottomLeft.x; } }
+	float gameRight { get { return gameTopRight.x; } }
+	float gameBottom { get { return gameBottomLeft.y; } }
+	float gameTop { get { return gameTopRight.y; } }
 
 	TextMesh _countdown;
 	TextMesh countdown
@@ -112,6 +117,27 @@ public class GameController : MonoBehaviour {
 			if (_countdown == null)
 				_countdown = GetComponent<TextMesh>();
 			return _countdown;
+		}
+	}
+	
+	Vector3 _bottomLeft = Vector3.one * float.NaN;
+	Vector3 bottomLeft
+	{
+		get
+		{
+			if (float.IsNaN(_bottomLeft.x))
+				_bottomLeft = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width * 0f, Screen.height * 0f));
+			return _bottomLeft;
+		}
+	}
+	Vector3 _topRight = Vector3.one * float.NaN;
+	Vector3 topRight
+	{
+		get
+		{
+			if (float.IsNaN(_topRight.x))
+				_topRight = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width * 1f, Screen.height * 1f));
+			return _topRight;
 		}
 	}
 
@@ -125,8 +151,8 @@ public class GameController : MonoBehaviour {
 		get
 		{
 			return new Vector3(
-				UnityEngine.Random.Range(left, right),
-				UnityEngine.Random.Range(bottom, top));
+				UnityEngine.Random.Range(gameLeft, gameRight),
+				UnityEngine.Random.Range(gameBottom, gameTop));
 		}
 	}
 
