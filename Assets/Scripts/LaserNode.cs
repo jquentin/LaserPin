@@ -205,8 +205,9 @@ public class LaserNode : MonoBehaviour {
 		nodesCopy.ForEach(node => node.DestroyNode());
 		for(int i = 0 ; i < nodesCopy.Count ; i++)
 		{
-			nodesCopy[i].Validate(i + 1);
-			team.score += (i + 1);
+			int nodePoints = GameController.instance.GetNbPoints(i + 1);
+			nodesCopy[i].Validate(nodePoints);
+			team.score += (nodePoints);
 			yield return new WaitForSeconds(0.05f);
 		}
 //		nodes.Clear();

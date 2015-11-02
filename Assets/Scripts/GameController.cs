@@ -70,6 +70,9 @@ public class GameController : MonoBehaviour {
 	}
 	#endregion
 
+	public enum Mode { Linear, Binary, Fibonacci }
+	public Mode mode;
+
 	public List<Team> teams;
 	public LaserNode nodePrefab;
 	public int nbNodesAtStart = 5;
@@ -337,6 +340,36 @@ public class GameController : MonoBehaviour {
 			}
 		}
 		return res;
+	}
+
+	public int GetNbPoints(int index)
+	{
+		switch (mode)
+		{
+		case Mode.Binary:
+		{
+			return 1 << (index - 1);
+		}
+		case Mode.Fibonacci:
+		{
+			return Fibo(index);
+		}
+		case Mode.Linear:
+		default:
+		{
+			return index;
+		}
+		}
+	}
+
+	int Fibo(int a)
+	{
+		if (a == 1)
+			return 1;
+		else if (a == 2)
+			return 2;
+		else
+			return Fibo (a - 1) + Fibo (a - 2);
 	}
 
 }
