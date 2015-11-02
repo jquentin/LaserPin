@@ -141,8 +141,16 @@ public class GameController : MonoBehaviour {
 		}
 	}
 
+	void OnTapToPlay(Gesture gesture)
+	{
+		EasyTouch.On_SimpleTap -= OnTapToPlay;
+		isSubscribed = false;
+		Play();
+	}
+
 	void Play()
 	{
+		print("Play");
 		foreach(Team team in teams)
 			team.score = 0;
 		isPlaying = true;
@@ -169,12 +177,17 @@ public class GameController : MonoBehaviour {
 //		Play ();
 	}
 
+	bool isSubscribed = false;
+
 	void Update()
 	{
 		if (isPlaying && Time.time >= timeStart + (float)timeGame)
 			GameOver();
-		else if (!isPlaying && Input.GetMouseButtonUp(0))
-			Play ();
+		if (!isPlaying && !isSubscribed)
+		{
+			EasyTouch.On_SimpleTap += OnTapToPlay;
+			isSubscribed = true;
+		}
 	}
 
 	void GameOver()
