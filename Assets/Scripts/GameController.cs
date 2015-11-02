@@ -13,6 +13,21 @@ public class Team
 	public TextMesh scoreLabel;
 	[NonSerialized]
 	public List<LaserNode> nodes = new List<LaserNode>();
+
+	public List<LaserNode> currentPaths
+	{
+		get
+		{
+			List<LaserNode> res = new List<LaserNode>();
+			foreach(LaserNode node in nodes)
+			{
+				if (node.nodes.Count > 0)
+					res.Add(node);
+			}
+			return res;
+		}
+	}
+
 	private int _score = 0;
 	public int score
 	{
@@ -28,6 +43,7 @@ public class Team
 	}
 
 	public Color color;
+
 }
 
 
@@ -214,6 +230,67 @@ public class GameController : MonoBehaviour {
 			if (team.nodes.Count < nbNodesAtStart)
 				CreatedNodes(team, nbNodesAtStart - team.nodes.Count);
 		}
+	}
+
+	
+	static bool FasterLineSegmentIntersection(Vector2 p1, Vector2 p2, Vector2 p3, Vector2 p4) {
+		
+		Vector2 a = p2 - p1;
+		Vector2 b = p3 - p4;
+		Vector2 c = p1 - p3;
+		
+		float alphaNumerator = b.y*c.x - b.x*c.y;
+		float alphaDenominator = a.y*b.x - a.x*b.y;
+		float betaNumerator  = a.x*c.y - a.y*c.x;
+		float betaDenominator  = a.y*b.x - a.x*b.y;
+		
+		bool doIntersect = true;
+		
+		if (alphaDenominator == 0 || betaDenominator == 0) {
+			doIntersect = false;
+		} else {
+			
+			if (alphaDenominator > 0) {
+				if (alphaNumerator < 0 || alphaNumerator > alphaDenominator) {
+					doIntersect = false;
+					
+				}
+			} else if (alphaNumerator > 0 || alphaNumerator < alphaDenominator) {
+				doIntersect = false;
+			}
+			
+			if (doIntersect && betaDenominator > 0) {
+				if (betaNumerator < 0 || betaNumerator > betaDenominator) {
+					doIntersect = false;
+				}
+			} else if (betaNumerator > 0 || betaNumerator < betaDenominator) {
+				doIntersect = false;
+			}
+		}
+		
+		return doIntersect;
+	}
+
+	public List<LaserNode> IsCrossing(LaserNode nodeA, LaserNode nodeB)
+	{
+		List<LaserNode> res = new List<LaserNode>();
+		foreach(Team team in teams)
+		{
+			if (team == nodeA.team)
+				continue;
+			foreach(LaserNode path in team.currentPaths)
+			{
+				for (int i = 0 ; i < path.nodes.Count - 1 ; i++)
+				{
+					if (FasterLineSegmentIntersection(nodeA.position, nodeB.position, path.nodes[i].position, path.nodes[i+1].position))
+					{
+						res.Add(path);
+						break;
+					}
+				}
+			}
+		}
+		return res;
 	}
 
 }

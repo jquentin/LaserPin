@@ -12,6 +12,17 @@ public class LaserNode : MonoBehaviour {
 	public bool dead = false;
 	public ScorePopper scorePopper;
 
+	public bool isAvailable
+	{
+		get
+		{
+			foreach(LaserNode node in team.nodes)
+				if (node.nodes.Contains(this))
+					return false;
+			return true;
+		}
+	}
+
 	private LineRenderer _lineRenderer;
 	private LineRenderer lineRenderer
 	{
@@ -52,8 +63,16 @@ public class LaserNode : MonoBehaviour {
 		}
 	}
 
+	public Vector2 position
+	{
+		get
+		{
+			return transform.position;
+		}
+	}
+
 	[SerializeField]
-	private List<LaserNode> nodes = new List<LaserNode>();
+	public List<LaserNode> nodes = new List<LaserNode>();
 
 	
 	void Update () 
@@ -79,10 +98,11 @@ public class LaserNode : MonoBehaviour {
 			foreach(Collider2D c in touched)
 			{
 				LaserNode touchedNode = c.GetComponent<LaserNode>();
-				if (touchedNode != null && !nodes.Contains(touchedNode) && touchedNode.team == this.team)
+				if (touchedNode != null && touchedNode.isAvailable && touchedNode.team == this.team)
 				{
 					nodes.Add(touchedNode);
 					touchedNode.UpdateAlphaForEnlight(1f);
+					TakeOverCrossedTeams();
 				}
 			}
 		}
@@ -106,6 +126,22 @@ public class LaserNode : MonoBehaviour {
 		{
 			nodes.Clear();
 		}
+	}
+	
+	void TakeOverCrossedTeams()
+	{
+		LaserNode nodeA = nodes[nodes.Count - 2];
+		LaserNode nodeB = nodes[nodes.Count - 1];
+		foreach(LaserNode path in GameController.instance.IsCrossing(nodeA, nodeB))
+		{
+			path.GetTakenOver(team);
+		}
+	}
+
+	public void GetTakenOver(Team team)
+	{
+		foreach(LaserNode node in nodes)
+			node.Init(team);
 	}
 
 	void Validate(int scoreGiven)
@@ -157,14 +193,16 @@ public class LaserNode : MonoBehaviour {
 
 	IEnumerator ValidateNodes()
 	{
-		nodes.ForEach(node => node.DestroyNode());
-		for(int i = 0 ; i < nodes.Count ; i++)
+		List<LaserNode> nodesCopy = new List<LaserNode>(nodes);
+		nodes.Clear();
+		GameController.instance.UpdateNodes();
+		nodesCopy.ForEach(node => node.DestroyNode());
+		for(int i = 0 ; i < nodesCopy.Count ; i++)
 		{
-			nodes[i].Validate(i + 1);
+			nodesCopy[i].Validate(i + 1);
 			team.score += (i + 1);
 			yield return new WaitForSeconds(0.05f);
 		}
-		GameController.instance.UpdateNodes();
 //		nodes.Clear();
 	}
 
