@@ -68,6 +68,7 @@ public class GameController : MonoBehaviour {
 	public float delayBetweenSpawns = 2f;
 	public int nbAttemptsAtCreating = 5;
 	public int timeGame = 30;
+	public int countdownNbSeconds = 5;
 	private float timeStart;
 	private bool isPlaying = false;
 
@@ -89,6 +90,17 @@ public class GameController : MonoBehaviour {
 			if (float.IsNaN(_topRight.x))
 				_topRight = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height));
 			return _topRight;
+		}
+	}
+
+	TextMesh _countdown;
+	TextMesh countdown
+	{
+		get
+		{
+			if (_countdown == null)
+				_countdown = GetComponent<TextMesh>();
+			return _countdown;
 		}
 	}
 
@@ -181,6 +193,14 @@ public class GameController : MonoBehaviour {
 
 	void Update()
 	{
+		if (isPlaying && Time.time >= timeStart + (float)timeGame - (float)countdownNbSeconds)
+		{
+			countdown.text = Mathf.CeilToInt((timeStart + (float)timeGame) - Time.time).ToString();
+		}
+		else
+		{
+			countdown.text = string.Empty;
+		}
 		if (isPlaying && Time.time >= timeStart + (float)timeGame)
 			GameOver();
 		if (!isPlaying && !isSubscribed)
