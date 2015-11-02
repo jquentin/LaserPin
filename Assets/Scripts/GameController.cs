@@ -14,6 +14,14 @@ public class Team
 	[NonSerialized]
 	public List<LaserNode> nodes = new List<LaserNode>();
 
+	public List<LaserNode> availableNodes
+	{
+		get
+		{
+			return nodes.FindAll(node => node.isAvailable);
+		}
+	}
+
 	public List<LaserNode> currentPaths
 	{
 		get
@@ -265,6 +273,11 @@ public class GameController : MonoBehaviour {
 		}
 	}
 
+	public void KeepMinimumNodes(Team team)
+	{
+		if (team.availableNodes.Count < nbNodesAtStart)
+			CreatedNode(team);
+	}
 	
 	static bool FasterLineSegmentIntersection(Vector2 p1, Vector2 p2, Vector2 p3, Vector2 p4) {
 		

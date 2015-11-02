@@ -100,9 +100,7 @@ public class LaserNode : MonoBehaviour {
 				LaserNode touchedNode = c.GetComponent<LaserNode>();
 				if (touchedNode != null && touchedNode.isAvailable && touchedNode.team == this.team)
 				{
-					nodes.Add(touchedNode);
-					touchedNode.UpdateAlphaForEnlight(1f);
-					TakeOverCrossedTeams();
+					AddNode(touchedNode);
 				}
 			}
 		}
@@ -126,6 +124,14 @@ public class LaserNode : MonoBehaviour {
 		{
 			nodes.Clear();
 		}
+	}
+
+	void AddNode(LaserNode node)
+	{
+		nodes.Add(node);
+		node.UpdateAlphaForEnlight(1f);
+		TakeOverCrossedTeams();
+		GameController.instance.KeepMinimumNodes(team);
 	}
 	
 	void TakeOverCrossedTeams()
