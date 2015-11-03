@@ -184,12 +184,17 @@ public class GameController : MonoBehaviour {
 
 	void InitTeams()
 	{
+		foreach (Team team in teams)
+		{
+			if (team.scoreLabel != null)
+				Destroy(team.scoreLabel.gameObject);
+		}
 		for (int i = 0 ; i < currentTeams.Count ; i++)
 		{
 			Team currentTeam = currentTeams[i];
 			currentTeam.teamIndex = i;
 			GameObject go = new GameObject("Score Player " + i);
-			currentTeam.scoreLabel = go.AddComponent<TextMesh>();
+			currentTeam.scoreLabel = go.GetOrAddComponent<TextMesh>();
 			currentTeam.scoreLabel.color = currentTeams[i].color;
 			currentTeam.scoreLabel.fontSize = 20;
 			currentTeam.scoreLabel.transform.localScale = Vector3.one * 0.5f;
@@ -282,6 +287,12 @@ public class GameController : MonoBehaviour {
 		foreach(LaserNode node in FindObjectsOfType<LaserNode>())
 			Destroy(node.gameObject);
 		StopCoroutine("GameCoroutine");
+		Invoke("ShowSelection", 1f);
+	}
+
+	void ShowSelection()
+	{
+		TeamSelection.instance.Show();
 	}
 
 	void CreateNodes()

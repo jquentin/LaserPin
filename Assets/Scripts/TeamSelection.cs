@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class TeamSelection : MonoBehaviour {
+public class TeamSelection : ShowablePanel {
 
 	#region Singleton
 	private static TeamSelection _instance;
@@ -20,6 +20,11 @@ public class TeamSelection : MonoBehaviour {
 	
 	public UIEventListener playButton;
 
+	void Awake()
+	{
+		_instance = this;
+	}
+
 	void Start()
 	{
 		for (int i = 0 ; i < playerButtons.Length ; i++)
@@ -27,7 +32,7 @@ public class TeamSelection : MonoBehaviour {
 			playerButtons[i].SetTeam(GameController.instance.teams[i]);
 		}
 		playButton.onClick += delegate {
-			gameObject.SetActive(false);
+			Hide();
 			GameController.instance.Play();
 		};
 	}
