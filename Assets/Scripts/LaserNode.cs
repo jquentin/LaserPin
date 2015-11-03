@@ -16,6 +16,8 @@ public class LaserNode : MonoBehaviour {
 	{
 		get
 		{
+			if (dead)
+				return false;
 			foreach(LaserNode node in team.nodes)
 				if (node.nodes.Contains(this))
 					return false;
@@ -86,6 +88,7 @@ public class LaserNode : MonoBehaviour {
 
 	void OnETMouseDown(Gesture gesture)
 	{
+		Debug.Log("OnETMouseDown " + name);
 		nodes.Add(this);
 		this.UpdateAlphaForEnlight(1f);
 	}
@@ -128,6 +131,7 @@ public class LaserNode : MonoBehaviour {
 
 	void AddNode(LaserNode node)
 	{
+		Debug.Log("AddNode " + node.name + " to " + name);
 		nodes.Add(node);
 		node.UpdateAlphaForEnlight(1f);
 		TakeOverCrossedTeams();
@@ -199,13 +203,20 @@ public class LaserNode : MonoBehaviour {
 
 	IEnumerator ValidateNodes()
 	{
+		Debug.Log("nodes.Count =" + nodes.Count);
+		if (nodes.Count > 5)
+		{
+			print ("wow");
+		}
 		List<LaserNode> nodesCopy = new List<LaserNode>(nodes);
 		nodes.Clear();
 		GameController.instance.UpdateNodes();
 		nodesCopy.ForEach(node => node.DestroyNode());
 		for(int i = 0 ; i < nodesCopy.Count ; i++)
 		{
+			Debug.Log("i=" + i);
 			int nodePoints = GameController.instance.GetNbPoints(i + 1);
+			Debug.Log("nodePoints=" + nodePoints);
 			nodesCopy[i].Validate(nodePoints);
 			team.score += (nodePoints);
 			yield return new WaitForSeconds(0.05f);
@@ -218,6 +229,7 @@ public class LaserNode : MonoBehaviour {
 		this.team = team;
 		color = team.color;
 		scorePopper.Init(team.color);
+		gameObject.name = "Node-" + team.teamIndex + ":" + team.counterSpawn;
 //		scorePopper.
 	}
 

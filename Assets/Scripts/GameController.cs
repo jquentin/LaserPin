@@ -11,8 +11,16 @@ public class Team
 	public int teamIndex;
 	[NonSerialized]
 	public TextMesh scoreLabel;
-	[NonSerialized]
-	public List<LaserNode> nodes = new List<LaserNode>();
+
+	public bool isUsed = false;
+
+	public List<LaserNode> nodes
+	{
+		get
+		{
+			return GameController.instance.nodes.FindAll(node => node.team.teamIndex == this.teamIndex);
+		}
+	}
 
 	public List<LaserNode> availableNodes
 	{
@@ -52,6 +60,15 @@ public class Team
 
 	public Color color;
 
+	private int _counterSpawn = 0;
+	public int counterSpawn
+	{
+		get
+		{
+			return _counterSpawn++;
+		}
+	}
+
 }
 
 
@@ -74,6 +91,13 @@ public class GameController : MonoBehaviour {
 	public Mode mode;
 
 	public List<Team> teams;
+	public List<Team> currentTeams
+	{
+		get
+		{
+			return teams.FindAll(team => team.isUsed);
+		}
+	}
 	public LaserNode nodePrefab;
 	public int nbNodesAtStart = 5;
 	public float delayBetweenSpawns = 2f;
@@ -82,6 +106,8 @@ public class GameController : MonoBehaviour {
 	public int countdownNbSeconds = 5;
 	private float timeStart;
 	private bool isPlaying = false;
+	
+	public List<LaserNode> nodes = new List<LaserNode>();
 	
 	Vector3 _gameBottomLeft = Vector3.one * float.NaN;
 	Vector3 gameBottomLeft
@@ -158,35 +184,36 @@ public class GameController : MonoBehaviour {
 
 	void InitTeams()
 	{
-		for (int i = 0 ; i < teams.Count ; i++)
+		for (int i = 0 ; i < currentTeams.Count ; i++)
 		{
-			teams[i].teamIndex = i;
+			Team currentTeam = currentTeams[i];
+			currentTeam.teamIndex = i;
 			GameObject go = new GameObject("Score Player " + i);
-			teams[i].scoreLabel = go.AddComponent<TextMesh>();
-			teams[i].scoreLabel.color = teams[i].color;
-			teams[i].scoreLabel.fontSize = 20;
-			teams[i].scoreLabel.transform.localScale = Vector3.one * 0.5f;
+			currentTeam.scoreLabel = go.AddComponent<TextMesh>();
+			currentTeam.scoreLabel.color = currentTeams[i].color;
+			currentTeam.scoreLabel.fontSize = 20;
+			currentTeam.scoreLabel.transform.localScale = Vector3.one * 0.5f;
 			if (i == 0)
 			{
-				teams[i].scoreLabel.anchor = TextAnchor.UpperLeft;
-				teams[i].scoreLabel.transform.position = new Vector3(left, top);
+				currentTeam.scoreLabel.anchor = TextAnchor.UpperLeft;
+				currentTeam.scoreLabel.transform.position = new Vector3(left, top);
 			}
 			else if (i == 1)
 			{
-				teams[i].scoreLabel.anchor = TextAnchor.UpperRight;
-				teams[i].scoreLabel.transform.position = new Vector3(right, top);
+				currentTeam.scoreLabel.anchor = TextAnchor.UpperRight;
+				currentTeam.scoreLabel.transform.position = new Vector3(right, top);
 			}
 			else if (i == 2)
 			{
-				teams[i].scoreLabel.anchor = TextAnchor.LowerLeft;
-				teams[i].scoreLabel.transform.position = new Vector3(left, bottom);
+				currentTeam.scoreLabel.anchor = TextAnchor.LowerLeft;
+				currentTeam.scoreLabel.transform.position = new Vector3(left, bottom);
 			}
 			else if (i == 3)
 			{
-				teams[i].scoreLabel.anchor = TextAnchor.LowerRight;
-				teams[i].scoreLabel.transform.position = new Vector3(right, bottom);
+				currentTeam.scoreLabel.anchor = TextAnchor.LowerRight;
+				currentTeam.scoreLabel.transform.position = new Vector3(right, bottom);
 			}
-			teams[i].score = 0;
+			currentTeam.score = 0;
 		}
 	}
 
@@ -197,10 +224,12 @@ public class GameController : MonoBehaviour {
 		Play();
 	}
 
-	void Play()
+	public void Play()
 	{
+		InitTeams();
 		print("Play");
-		foreach(Team team in teams)
+		nodes.Clear();
+		foreach(Team team in currentTeams)
 			team.score = 0;
 		isPlaying = true;
 		timeStart = Time.time;
@@ -222,7 +251,7 @@ public class GameController : MonoBehaviour {
 
 	void Start()
 	{
-		InitTeams();
+//		InitTeams();
 //		Play ();
 	}
 
@@ -240,11 +269,11 @@ public class GameController : MonoBehaviour {
 		}
 		if (isPlaying && Time.time >= timeStart + (float)timeGame)
 			GameOver();
-		if (!isPlaying && !isSubscribed)
-		{
-			EasyTouch.On_SimpleTap += OnTapToPlay;
-			isSubscribed = true;
-		}
+//		if (!isPlaying && !isSubscribed)
+//		{
+//			EasyTouch.On_SimpleTap += OnTapToPlay;
+//			isSubscribed = true;
+//		}
 	}
 
 	void GameOver()
@@ -257,9 +286,9 @@ public class GameController : MonoBehaviour {
 
 	void CreateNodes()
 	{
-		for (int i = 0 ; i < teams.Count ; i++)
+		for (int i = 0 ; i < currentTeams.Count ; i++)
 		{
-			CreatedNode(teams[i]);
+			CreatedNode(currentTeams[i]);
 		}
 	}
 
@@ -280,7 +309,7 @@ public class GameController : MonoBehaviour {
 		{
 			LaserNode createdNode = Instantiate(nodePrefab, pos, nodePrefab.transform.rotation) as LaserNode;
 			createdNode.Init(team);
-			team.nodes.Add(createdNode);
+			nodes.Add(createdNode);
 		}
 	}
 
@@ -294,7 +323,7 @@ public class GameController : MonoBehaviour {
 
 	public void UpdateNodes()
 	{
-		foreach(Team team in teams)
+		foreach(Team team in currentTeams)
 		{
 			team.nodes.RemoveAll(node => node == null || node.dead);
 			if (team.nodes.Count < nbNodesAtStart)
@@ -349,7 +378,7 @@ public class GameController : MonoBehaviour {
 	public List<LaserNode> IsCrossing(LaserNode nodeA, LaserNode nodeB)
 	{
 		List<LaserNode> res = new List<LaserNode>();
-		foreach(Team team in teams)
+		foreach(Team team in currentTeams)
 		{
 			if (team == nodeA.team)
 				continue;
