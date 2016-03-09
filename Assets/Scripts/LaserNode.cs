@@ -12,6 +12,9 @@ public class LaserNode : MonoBehaviour {
 	public bool dead = false;
 	public ScorePopper scorePopper;
 
+	public delegate void OnNodeTakenHandler(LaserNode newNode, LaserNode rootNode);
+	public static OnNodeTakenHandler OnNodeTaken;
+
 	public bool isAvailable
 	{
 		get
@@ -72,10 +75,24 @@ public class LaserNode : MonoBehaviour {
 			return transform.position;
 		}
 	}
+	public AudioSource audioSource
+	{
+		get
+		{
+			return transform.GetOrAddComponent<AudioSource>();
+		}
+	}
 
 	[SerializeField]
 	public List<LaserNode> nodes = new List<LaserNode>();
 
+	public Instrument instrument
+	{
+		get
+		{
+			return GameController.instance.instruments[team.instrument];
+		}
+	}
 	
 	void Update () 
 	{
@@ -91,6 +108,9 @@ public class LaserNode : MonoBehaviour {
 		Debug.Log("OnETMouseDown " + name);
 		nodes.Add(this);
 		this.UpdateAlphaForEnlight(1f);
+		if (OnNodeTaken != null)
+			OnNodeTaken(this, this);
+		instrument.PlayNote(audioSource, nodes.Count);
 	}
 
 	void OnETMouseDrag(Gesture gesture)
@@ -136,6 +156,9 @@ public class LaserNode : MonoBehaviour {
 		node.UpdateAlphaForEnlight(1f);
 		TakeOverCrossedTeams();
 		GameController.instance.KeepMinimumNodes(team);
+		instrument.PlayNote(audioSource, nodes.Count);
+		if (OnNodeTaken != null)
+			OnNodeTaken(node, this);
 	}
 	
 	void TakeOverCrossedTeams()
@@ -145,6 +168,7 @@ public class LaserNode : MonoBehaviour {
 		foreach(LaserNode path in GameController.instance.IsCrossing(nodeA, nodeB))
 		{
 			path.GetTakenOver(team);
+			StartCoroutine(instrument.PlayTakeOverSound(transform.GetOrAddComponent<AudioSource>()));
 		}
 	}
 
@@ -152,6 +176,7 @@ public class LaserNode : MonoBehaviour {
 	{
 		foreach(LaserNode node in nodes)
 			node.Init(team);
+		StartCoroutine(instrument.PlayGetTakenOverSound(transform.GetOrAddComponent<AudioSource>()));
 	}
 
 	void Validate(int scoreGiven)
@@ -218,6 +243,8 @@ public class LaserNode : MonoBehaviour {
 			int nodePoints = GameController.instance.GetNbPoints(i + 1);
 			Debug.Log("nodePoints=" + nodePoints);
 			nodesCopy[i].Validate(nodePoints);
+			instrument.PlayNote(audioSource, i);
+			audioSource.PlayOneShot(GameController.instance.validationSound);
 			team.score += (nodePoints);
 			yield return new WaitForSeconds(0.05f);
 		}

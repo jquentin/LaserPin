@@ -5,12 +5,50 @@ using System.Collections.Generic;
 using System.Linq;
 
 [Serializable]
+public class Instrument
+{
+	public List<AudioClip> notes;
+
+	public AudioClip GetNote(int number)
+	{
+		return notes[Mathf.Min(number, notes.Count - 1)];
+	}
+
+	public void PlayNote(AudioSource source, int number)
+	{
+		source.PlayOneShot(GetNote(number));
+	}
+
+	public IEnumerator PlayTakeOverSound(AudioSource source)
+	{
+		float delay = 0.08f;
+		source.PlayOneShot(GetNote(6));
+		yield return new WaitForSeconds(delay);
+		source.PlayOneShot(GetNote(7));
+		yield return new WaitForSeconds(delay);
+		source.PlayOneShot(GetNote(8));
+	}
+
+	public IEnumerator PlayGetTakenOverSound(AudioSource source)
+	{
+		float delay = 0.08f;
+		source.PlayOneShot(GetNote(8));
+		yield return new WaitForSeconds(delay);
+		source.PlayOneShot(GetNote(7));
+		yield return new WaitForSeconds(delay);
+		source.PlayOneShot(GetNote(6));
+	}
+}
+
+[Serializable]
 public class Team
 {
 	[NonSerialized]
 	public int teamIndex;
 	[NonSerialized]
 	public TextMesh scoreLabel;
+	[NonSerialized]
+	public int instrument;
 
 	public bool isUsed = false;
 
@@ -87,8 +125,8 @@ public class GameController : MonoBehaviour {
 	}
 	#endregion
 
-	public enum Mode { Linear, Binary, Fibonacci }
-	public Mode mode;
+	public enum ScoreIncrementMode { Linear, Binary, Fibonacci }
+	public ScoreIncrementMode mode;
 
 	public List<Team> teams;
 	public List<Team> currentTeams
@@ -108,6 +146,9 @@ public class GameController : MonoBehaviour {
 	private bool isPlaying = false;
 	
 	public List<LaserNode> nodes = new List<LaserNode>();
+
+	public AudioClip validationSound;
+	public List<Instrument> instruments;
 	
 	Vector3 _gameBottomLeft = Vector3.one * float.NaN;
 	Vector3 gameBottomLeft
@@ -189,10 +230,12 @@ public class GameController : MonoBehaviour {
 			if (team.scoreLabel != null)
 				Destroy(team.scoreLabel.gameObject);
 		}
+		List<int> chosenInstruments = RandomUtils.RandomDifferentValues(currentTeams.Count, 0, instruments.Count);
 		for (int i = 0 ; i < currentTeams.Count ; i++)
 		{
 			Team currentTeam = currentTeams[i];
 			currentTeam.teamIndex = i;
+			currentTeam.instrument = chosenInstruments[i];
 			GameObject go = new GameObject("Score Player " + i);
 			currentTeam.scoreLabel = go.GetOrAddComponent<TextMesh>();
 			currentTeam.scoreLabel.color = currentTeams[i].color;
@@ -310,7 +353,7 @@ public class GameController : MonoBehaviour {
 		for (int j = 0 ; j < nbAttemptsAtCreating ; j++)
 		{
 			pos = randomPosition;
-			if (Physics2D.OverlapCircle(pos, 0.7f) == null)
+			if (Physics2D.OverlapCircle(pos, nodePrefab.transform.localScale.x * 0.7f) == null)
 			{
 				foundPlace = true;
 				break;
@@ -412,15 +455,15 @@ public class GameController : MonoBehaviour {
 	{
 		switch (mode)
 		{
-		case Mode.Binary:
+		case ScoreIncrementMode.Binary:
 		{
 			return 1 << (index - 1);
 		}
-		case Mode.Fibonacci:
+		case ScoreIncrementMode.Fibonacci:
 		{
 			return Fibo(index);
 		}
-		case Mode.Linear:
+		case ScoreIncrementMode.Linear:
 		default:
 		{
 			return index;
