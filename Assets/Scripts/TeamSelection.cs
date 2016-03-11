@@ -20,6 +20,18 @@ public class TeamSelection : ShowablePanel {
 	
 	public UIEventListener playButton;
 
+	int nbSelectedButtons
+	{
+		get
+		{
+			int res = 0;
+			foreach(TeamButton tb in playerButtons)
+				if (tb.isSelected)
+					res++;
+			return res;
+		}
+	}
+
 	void Awake()
 	{
 		_instance = this;
@@ -35,6 +47,13 @@ public class TeamSelection : ShowablePanel {
 			Hide();
 			GameController.instance.Play();
 		};
+	}
+
+	void Update()
+	{
+		bool isPlayable = (nbSelectedButtons > 1);
+		playButton.GetComponentInChildren<Collider>(true).enabled = isPlayable;
+		playButton.GetComponentInChildren<UILabel>().color = isPlayable ? Color.white : Color.gray;
 	}
 
 }

@@ -40,6 +40,14 @@ public class TeamButton : MonoBehaviour {
 
 	private Team team;
 
+	public bool isSelected
+	{
+		get
+		{
+			return team.isUsed;
+		}
+	}
+
 	public void SetTeam(Team team)
 	{
 		this.team = team;
