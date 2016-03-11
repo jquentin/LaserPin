@@ -39,7 +39,7 @@ public class LaserNode : MonoBehaviour {
 			{
 				_lineRenderer = gameObject.AddComponent<LineRenderer>();
 			}
-			_lineRenderer.material = meshRenderer.material;
+			_lineRenderer.material = sphereOn.material;
 			_lineRenderer.useWorldSpace = true;
 			return _lineRenderer;
 		}
@@ -56,15 +56,19 @@ public class LaserNode : MonoBehaviour {
 		}
 	}
 
-	public MeshRenderer meshRenderer;
+	public MeshRenderer sphereOn;
+	public MeshRenderer sphereOff;
 
 	private Color color
 	{
 		set
 		{
-			meshRenderer.material.color = value;
-			meshRenderer.material.SetColor("_EmissionColor", Color.black);
-			meshRenderer.material.EnableKeyword ("_EMISSION");
+			sphereOn.material.color = value;
+			sphereOn.material.SetColor("_EmissionColor", Color.Lerp(value, Color.black, 0.2f));
+			sphereOn.material.EnableKeyword ("_EMISSION");
+			sphereOff.material.color = value;
+			sphereOff.material.SetColor("_EmissionColor", Color.black);
+			sphereOff.material.EnableKeyword ("_EMISSION");
 		}
 	}
 
@@ -93,6 +97,11 @@ public class LaserNode : MonoBehaviour {
 			return GameController.instance.instruments[team.instrument];
 		}
 	}
+
+	void Start()
+	{
+		TurnOff();
+	}
 	
 	void Update () 
 	{
@@ -107,7 +116,7 @@ public class LaserNode : MonoBehaviour {
 	{
 		Debug.Log("OnETMouseDown " + name);
 		nodes.Add(this);
-		this.UpdateAlphaForEnlight(1f);
+		this.TurnOn();
 		if (OnNodeTaken != null)
 			OnNodeTaken(this, this);
 		instrument.PlayNote(audioSource, nodes.Count);
@@ -140,7 +149,7 @@ public class LaserNode : MonoBehaviour {
 
 	void OnETMouseUp(Gesture gesture)
 	{
-		nodes.ForEach(node => node.UpdateAlphaForEnlight(0f));
+		nodes.ForEach(node => node.TurnOff());
 		if (nodes.Count >= 2)
 			StartCoroutine(ValidateNodes());
 		else
@@ -153,7 +162,7 @@ public class LaserNode : MonoBehaviour {
 	{
 		Debug.Log("AddNode " + node.name + " to " + name);
 		nodes.Add(node);
-		node.UpdateAlphaForEnlight(1f);
+		node.TurnOn();
 		TakeOverCrossedTeams();
 		GameController.instance.KeepMinimumNodes(team);
 		instrument.PlayNote(audioSource, nodes.Count);
@@ -182,34 +191,37 @@ public class LaserNode : MonoBehaviour {
 	void Validate(int scoreGiven)
 	{
 		collider.enabled = false;
-		iTween.ScaleBy(meshRenderer.gameObject, iTween.Hash(
+		iTween.ScaleBy(sphereOff.gameObject, iTween.Hash(
 			"amount", 2f * Vector3.one,
 			"time", 0.2f,
 			"easetype", iTween.EaseType.linear));
-		iTween.FadeTo(meshRenderer.gameObject, iTween.Hash(
+		iTween.FadeTo(sphereOff.gameObject, iTween.Hash(
 			"alpha", 0f,
 			"time", 0.2f,
 			"easetype", iTween.EaseType.linear,
 			"oncomplete", "Hide",
 			"oncompletetarget", gameObject));
 		scorePopper.Pop(scoreGiven);
-		UpdateAlphaForTurnOff(0f);
-//		iTween.ValueTo(gameObject, iTween.Hash(
-//			"from", 1f,
-//			"to", 0f,
-//			"time", 0.2f,
-//			"onupdate", "UpdateAlphaForTurnOff"));
 	}
 
 	void Hide()
 	{
-		meshRenderer.enabled = false;
+		sphereOff.enabled = false;
+		sphereOn.enabled = false;
 	}
 
-	
-	void UpdateAlphaForTurnOff(float value)
+	void TurnOn()
 	{
-		meshRenderer.material.SetFloat("_Smoothness", value);
+//		UpdateAlphaForEnlight(1f);
+		sphereOn.gameObject.SetActive(true);
+		sphereOff.gameObject.SetActive(false);
+	}
+
+	void TurnOff()
+	{
+//		UpdateAlphaForEnlight(0f);
+		sphereOn.gameObject.SetActive(false);
+		sphereOff.gameObject.SetActive(true);
 	}
 
 	void UpdateAlphaForEnlight(float value)
@@ -217,7 +229,7 @@ public class LaserNode : MonoBehaviour {
 //		Color c = meshRenderer.material.GetColor("emission");
 //		c.a = value;
 		Color c = new Color(team.color.r * value, team.color.g * value, team.color.b * value);
-		meshRenderer.material.SetColor("_EmissionColor", c);
+		sphereOn.material.SetColor("_EmissionColor", c);
 	}
 
 	void DestroyNode()
