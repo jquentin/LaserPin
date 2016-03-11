@@ -28,19 +28,18 @@ public class LaserNode : MonoBehaviour {
 		}
 	}
 
-	private LineRenderer _lineRenderer;
-	private LineRenderer lineRenderer
+	private ImprovedLineRenderer _lineRenderer;
+	private ImprovedLineRenderer lineRenderer
 	{
 		get
 		{
 			if (_lineRenderer == null)
-				_lineRenderer = GetComponent<LineRenderer>();
+				_lineRenderer = GetComponent<ImprovedLineRenderer>();
 			if (_lineRenderer == null)
 			{
-				_lineRenderer = gameObject.AddComponent<LineRenderer>();
+				_lineRenderer = gameObject.AddComponent<ImprovedLineRenderer>();
 			}
 			_lineRenderer.material = sphereOn.material;
-			_lineRenderer.useWorldSpace = true;
 			return _lineRenderer;
 		}
 	}
@@ -136,15 +135,17 @@ public class LaserNode : MonoBehaviour {
 				}
 			}
 		}
-		lineRenderer.SetVertexCount(nodes.Count + 1);
+		lineRenderer.SetVertexCount((nodes.Count + 1)*2);
 		for(int i = 0 ; i < nodes.Count ; i++)
 		{
 			LaserNode node = nodes[i];
-			lineRenderer.SetPosition(i, node.transform.position);
+			lineRenderer.SetPosition(i*2, node.transform.position);
+			lineRenderer.SetPosition(i*2+1, node.transform.position);
 		}
 		Vector3 mousePos = Camera.main.ScreenToWorldPoint(gesture.position);
 		mousePos.z = 0f;
-		lineRenderer.SetPosition(nodes.Count, mousePos);
+		lineRenderer.SetPosition(nodes.Count*2, mousePos);
+		lineRenderer.SetPosition(nodes.Count*2+1, mousePos);
 	}
 
 	void OnETMouseUp(Gesture gesture)
