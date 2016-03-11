@@ -144,6 +144,7 @@ public class GameController : MonoBehaviour {
 	public int countdownNbSeconds = 5;
 	private float timeStart;
 	private bool isPlaying = false;
+	public float overlapAllowSpace = 1.1f;
 	
 	public List<LaserNode> nodes = new List<LaserNode>();
 
@@ -340,9 +341,11 @@ public class GameController : MonoBehaviour {
 
 	void CreateNodes()
 	{
-		for (int i = 0 ; i < currentTeams.Count ; i++)
+		List<Team> sortedTeams = currentTeams.OrderBy(x => x.availableNodes.Count).ToList();
+		for (int i = 0 ; i < sortedTeams.Count ; i++)
 		{
-			CreatedNode(currentTeams[i]);
+			Team team = sortedTeams[i];
+			CreatedNode(team);
 		}
 	}
 
@@ -353,7 +356,7 @@ public class GameController : MonoBehaviour {
 		for (int j = 0 ; j < nbAttemptsAtCreating ; j++)
 		{
 			pos = randomPosition;
-			if (Physics2D.OverlapCircle(pos, nodePrefab.transform.localScale.x * 0.7f) == null)
+			if (Physics2D.OverlapCircle(pos, nodePrefab.transform.localScale.x * 0.5f * overlapAllowSpace) == null)
 			{
 				foundPlace = true;
 				break;
