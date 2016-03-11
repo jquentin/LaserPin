@@ -3,35 +3,71 @@ using System.Collections;
 
 public class ScaleToScreenSize : MonoBehaviour {
 
-	public enum Type { Stretch, DoNotStretch }
+	public enum ScaleType { ScaleToRatio, ScaleToSize }
+	public ScaleType scaleType = ScaleType.ScaleToRatio;
+
+	public enum Type { Stretch, DoNotStretch, ScaleToFit, ScaleToFill }
 	public Type type = Type.Stretch;
 
 	public bool cancelSizingOnChildren = false;
 
+	const float REFERENCE_RATIO = 4f / 3f;
+
+	public Vector2 referenceScreenSize;
+
+	[ContextMenu("Initialize ref screen size")]
+	void InitRefScreenSize()
+	{
+		referenceScreenSize = new Vector2((float)Screen.width, (float)Screen.height);
+	}
 
 	void Start () 
 	{
-		if (Mathf.Abs(DeviceUtils.aspectRatio - 1.3333333f) < 0.05f)
-			return;
-		float multiplier = DeviceUtils.aspectRatio / 1.3333f;
-		if (type == Type.DoNotStretch)
+		if (scaleType == ScaleType.ScaleToRatio)
 		{
-			transform.localScale *= multiplier;
+			if (Mathf.Abs(DeviceUtils.aspectRatio - REFERENCE_RATIO) < 0.05f)
+				return;
+			float multiplier = DeviceUtils.aspectRatio / REFERENCE_RATIO;
+			if (type == Type.DoNotStretch)
+			{
+				transform.localScale *= multiplier;
+			}
+			else
+			{
+				Vector3 scale = transform.localScale;
+				scale.x *= multiplier;
+				transform.localScale = scale;
+			}
+			if (cancelSizingOnChildren)
+			{
+				for(int i = 0 ; i < transform.childCount ; i++)
+				{
+					Transform child = transform.GetChild(i);
+					Vector3 childScale = child.localScale;
+					childScale.x /= multiplier;
+					child.localScale = childScale;
+				}
+			}
 		}
 		else
 		{
-			Vector3 scale = transform.localScale;
-			scale.x *= multiplier;
-			transform.localScale = scale;
-		}
-		if (cancelSizingOnChildren)
-		{
-			for(int i = 0 ; i < transform.childCount ; i++)
+
+			if (type == Type.DoNotStretch || type == Type.ScaleToFit)
 			{
-				Transform child = transform.GetChild(i);
-				Vector3 childScale = child.localScale;
-				childScale.x /= multiplier;
-				child.localScale = childScale;
+				float multiplier = Mathf.Min((float)Screen.width / referenceScreenSize.x, (float)Screen.height / referenceScreenSize.y);
+				transform.localScale *= multiplier;
+			}
+			else if (type == Type.ScaleToFill)
+			{
+				float multiplier = Mathf.Max((float)Screen.width / referenceScreenSize.x, (float)Screen.height / referenceScreenSize.y);
+				transform.localScale *= multiplier;
+			}
+			else
+			{
+				Vector3 scale = transform.localScale;
+				scale.x *= (float)Screen.width / referenceScreenSize.x;
+				scale.y *= (float)Screen.height / referenceScreenSize.y;
+				transform.localScale = scale;
 			}
 		}
 	}
