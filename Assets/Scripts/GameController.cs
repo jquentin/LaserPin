@@ -183,16 +183,7 @@ public class GameController : MonoBehaviour {
 	float gameBottom { get { return gameBottomLeft.y; } }
 	float gameTop { get { return gameTopRight.y; } }
 
-	TextMesh _countdown;
-	TextMesh countdown
-	{
-		get
-		{
-			if (_countdown == null)
-				_countdown = GetComponent<TextMesh>();
-			return _countdown;
-		}
-	}
+	public UILabel countdown;
 	
 	Vector3 _bottomLeft = Vector3.one * float.NaN;
 	Vector3 bottomLeft
