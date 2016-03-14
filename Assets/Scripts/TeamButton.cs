@@ -58,6 +58,8 @@ public class TeamButton : MonoBehaviour {
 	void OnClick()
 	{
 		team.isUsed = !team.isUsed;
+		if (team.isUsed)
+			team.instrument.PlayNote(transform.GetOrAddComponent<AudioSource>(), 2);
 		UpdateCheckState();
 	}
 

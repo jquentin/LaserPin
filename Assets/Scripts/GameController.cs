@@ -47,8 +47,14 @@ public class Team
 	public int teamIndex;
 	[NonSerialized]
 	public TextMesh scoreLabel;
-	[NonSerialized]
-	public int instrument;
+	public int instrumentIndex;
+	public Instrument instrument
+	{
+		get
+		{
+			return GameController.instance.instruments[instrumentIndex];
+		}
+	}
 
 	public bool isUsed = false;
 
@@ -236,12 +242,12 @@ public class GameController : MonoBehaviour {
 		{
 			Team currentTeam = currentTeams[i];
 			currentTeam.teamIndex = i;
-			currentTeam.instrument = chosenInstruments[i];
+//			currentTeam.instrumentIndex = chosenInstruments[i];
 			GameObject go = new GameObject("Score Player " + i);
 			currentTeam.scoreLabel = go.GetOrAddComponent<TextMesh>();
 			currentTeam.scoreLabel.color = currentTeams[i].color;
-			currentTeam.scoreLabel.fontSize = 20;
-			currentTeam.scoreLabel.transform.localScale = Vector3.one * 0.5f;
+			currentTeam.scoreLabel.fontSize = 100;
+			currentTeam.scoreLabel.transform.localScale = Vector3.one * 0.1f;
 			if (i == 0)
 			{
 				currentTeam.scoreLabel.anchor = TextAnchor.UpperLeft;

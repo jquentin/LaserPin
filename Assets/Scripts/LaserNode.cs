@@ -93,7 +93,7 @@ public class LaserNode : MonoBehaviour {
 	{
 		get
 		{
-			return GameController.instance.instruments[team.instrument];
+			return team.instrument;
 		}
 	}
 
