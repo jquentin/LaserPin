@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -150,7 +150,6 @@ public class LaserNode : MonoBehaviour {
 
 	void OnETMouseUp(Gesture gesture)
 	{
-		nodes.ForEach(node => node.TurnOff());
 		if (nodes.Count >= 2)
 			StartCoroutine(ValidateNodes());
 		else
@@ -192,11 +191,11 @@ public class LaserNode : MonoBehaviour {
 	void Validate(int scoreGiven)
 	{
 		collider.enabled = false;
-		iTween.ScaleBy(sphereOff.gameObject, iTween.Hash(
+		iTween.ScaleBy(sphereOn.gameObject, iTween.Hash(
 			"amount", 2f * Vector3.one,
 			"time", 0.2f,
 			"easetype", iTween.EaseType.linear));
-		iTween.FadeTo(sphereOff.gameObject, iTween.Hash(
+		iTween.FadeTo(sphereOn.gameObject, iTween.Hash(
 			"alpha", 0f,
 			"time", 0.2f,
 			"easetype", iTween.EaseType.linear,
