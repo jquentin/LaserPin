@@ -154,6 +154,8 @@ public class LaserNode : MonoBehaviour {
 			StartCoroutine(ValidateNodes());
 		else
 		{
+			foreach(LaserNode node in nodes)
+				node.TurnOff();
 			nodes.Clear();
 		}
 	}
