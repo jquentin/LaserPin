@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -46,7 +46,7 @@ public class Team
 	[NonSerialized]
 	public int teamIndex;
 	[NonSerialized]
-	public TextMesh scoreLabel;
+	public ScoreLabel scoreLabel;
 	public int instrumentIndex;
 	public Instrument instrument
 	{
@@ -98,7 +98,7 @@ public class Team
 		set
 		{
 			_score = value;
-			scoreLabel.text = _score.ToString();
+			scoreLabel.score = _score;
 		}
 	}
 
@@ -156,7 +156,7 @@ public class GameController : MonoBehaviour {
 
 	public AudioClip validationSound;
 	public List<Instrument> instruments;
-	
+
 	Vector3 _gameBottomLeft = Vector3.one * float.NaN;
 	Vector3 gameBottomLeft
 	{
@@ -223,51 +223,14 @@ public class GameController : MonoBehaviour {
 
 	void InitTeams()
 	{
-		foreach (Team team in teams)
-		{
-			if (team.scoreLabel != null)
-				Destroy(team.scoreLabel.gameObject);
-		}
-		List<int> chosenInstruments = RandomUtils.RandomDifferentValues(currentTeams.Count, 0, instruments.Count);
-		for (int i = 0 ; i < currentTeams.Count ; i++)
-		{
-			Team currentTeam = currentTeams[i];
-			currentTeam.teamIndex = i;
-//			currentTeam.instrumentIndex = chosenInstruments[i];
-			GameObject go = new GameObject("Score Player " + i);
-			currentTeam.scoreLabel = go.GetOrAddComponent<TextMesh>();
-			currentTeam.scoreLabel.color = currentTeams[i].color;
-			currentTeam.scoreLabel.fontSize = 100;
-			currentTeam.scoreLabel.transform.localScale = Vector3.one * 0.1f;
-			if (i == 0)
-			{
-				currentTeam.scoreLabel.anchor = TextAnchor.UpperLeft;
-				currentTeam.scoreLabel.transform.position = new Vector3(left, top);
-			}
-			else if (i == 1)
-			{
-				currentTeam.scoreLabel.anchor = TextAnchor.UpperRight;
-				currentTeam.scoreLabel.transform.position = new Vector3(right, top);
-			}
-			else if (i == 2)
-			{
-				currentTeam.scoreLabel.anchor = TextAnchor.LowerLeft;
-				currentTeam.scoreLabel.transform.position = new Vector3(left, bottom);
-			}
-			else if (i == 3)
-			{
-				currentTeam.scoreLabel.anchor = TextAnchor.LowerRight;
-				currentTeam.scoreLabel.transform.position = new Vector3(right, bottom);
-			}
-			currentTeam.score = 0;
-		}
+		ScoreManager.instance.CreateScores(currentTeams);
 	}
 
 	void OnTapToPlay(Gesture gesture)
 	{
 		EasyTouch.On_SimpleTap -= OnTapToPlay;
 		isSubscribed = false;
-		Play();
+			Play();
 	}
 
 	public void Play()
