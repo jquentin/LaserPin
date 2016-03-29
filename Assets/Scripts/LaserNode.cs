@@ -135,17 +135,15 @@ public class LaserNode : MonoBehaviour {
 				}
 			}
 		}
-		lineRenderer.SetVertexCount((nodes.Count + 1)*2);
+		lineRenderer.SetVertexCount(nodes.Count + 1);
 		for(int i = 0 ; i < nodes.Count ; i++)
 		{
 			LaserNode node = nodes[i];
-			lineRenderer.SetPosition(i*2, node.transform.position);
-			lineRenderer.SetPosition(i*2+1, node.transform.position);
+			lineRenderer.SetPosition(i, node.transform.position);
 		}
 		Vector3 mousePos = Camera.main.ScreenToWorldPoint(gesture.position);
 		mousePos.z = 0f;
-		lineRenderer.SetPosition(nodes.Count*2, mousePos);
-		lineRenderer.SetPosition(nodes.Count*2+1, mousePos);
+		lineRenderer.SetPosition(nodes.Count, mousePos);
 	}
 
 	void OnETMouseUp(Gesture gesture)
@@ -193,11 +191,11 @@ public class LaserNode : MonoBehaviour {
 	void Validate(int scoreGiven)
 	{
 		collider.enabled = false;
-		iTween.ScaleBy(sphereOn.gameObject, iTween.Hash(
+		iTween.ScaleBy(gameObject, iTween.Hash(
 			"amount", 2f * Vector3.one,
 			"time", 0.2f,
 			"easetype", iTween.EaseType.linear));
-		iTween.FadeTo(sphereOn.gameObject, iTween.Hash(
+		iTween.FadeTo(gameObject, iTween.Hash(
 			"alpha", 0f,
 			"time", 0.2f,
 			"easetype", iTween.EaseType.linear,
@@ -208,61 +206,42 @@ public class LaserNode : MonoBehaviour {
 
 	void Hide()
 	{
-		sphereOff.enabled = false;
-		sphereOn.enabled = false;
+		sphereOff.gameObject.SetActive(false);
+		sphereOn.gameObject.SetActive(false);
 	}
 
 	void TurnOn()
 	{
-//		UpdateAlphaForEnlight(1f);
 		sphereOn.gameObject.SetActive(true);
 		sphereOff.gameObject.SetActive(false);
 	}
 
 	void TurnOff()
 	{
-//		UpdateAlphaForEnlight(0f);
 		sphereOn.gameObject.SetActive(false);
 		sphereOff.gameObject.SetActive(true);
-	}
-
-	void UpdateAlphaForEnlight(float value)
-	{
-//		Color c = meshRenderer.material.GetColor("emission");
-//		c.a = value;
-		Color c = new Color(team.color.r * value, team.color.g * value, team.color.b * value);
-		sphereOn.material.SetColor("_EmissionColor", c);
 	}
 
 	void DestroyNode()
 	{
 		dead = true;
-//		Destroy(gameObject);
 	}
 
 	IEnumerator ValidateNodes()
 	{
-		Debug.Log("nodes.Count =" + nodes.Count);
-		if (nodes.Count > 5)
-		{
-			print ("wow");
-		}
 		List<LaserNode> nodesCopy = new List<LaserNode>(nodes);
 		nodes.Clear();
 		GameController.instance.UpdateNodes();
 		nodesCopy.ForEach(node => node.DestroyNode());
 		for(int i = 0 ; i < nodesCopy.Count ; i++)
 		{
-			Debug.Log("i=" + i);
 			int nodePoints = GameController.instance.GetNbPoints(i + 1);
-			Debug.Log("nodePoints=" + nodePoints);
 			nodesCopy[i].Validate(nodePoints);
 			instrument.PlayNote(audioSource, i);
 			audioSource.PlayOneShot(GameController.instance.validationSound);
 			team.score += (nodePoints);
 			yield return new WaitForSeconds(0.05f);
 		}
-//		nodes.Clear();
 	}
 
 	public void Init(Team team)
@@ -271,7 +250,6 @@ public class LaserNode : MonoBehaviour {
 		color = team.color;
 		scorePopper.Init(team.color);
 		gameObject.name = "Node-" + team.teamIndex + ":" + team.counterSpawn;
-//		scorePopper.
 	}
 
 }
