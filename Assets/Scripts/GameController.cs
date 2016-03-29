@@ -156,6 +156,7 @@ public class GameController : MonoBehaviour {
 
 	public AudioClip validationSound;
 	public List<Instrument> instruments;
+	public AudioClip countdownSound;
 
 	Vector3 _gameBottomLeft = Vector3.one * float.NaN;
 	Vector3 gameBottomLeft
@@ -270,7 +271,12 @@ public class GameController : MonoBehaviour {
 	{
 		if (isPlaying && Time.time >= timeStart + (float)timeGame - (float)countdownNbSeconds)
 		{
-			countdown.text = Mathf.CeilToInt((timeStart + (float)timeGame) - Time.time).ToString();
+			int timeLeft = Mathf.CeilToInt((timeStart + (float)timeGame) - Time.time);
+			if (timeLeft.ToString() != countdown.text)
+			{
+				countdown.text = timeLeft.ToString();
+				this.GetOrAddComponent<AudioSource>().PlayOneShot(countdownSound);
+			}
 		}
 		else
 		{
