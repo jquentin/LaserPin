@@ -34,35 +34,49 @@ public class ScoreLabel : MonoBehaviour {
 
 		gameObject.name = "Score Player " + index;
 		label.color = color;
-		label.fontSize = 30;
+//		label.fontSize = 30;
 		Camera cam = NGUITools.FindCameraForLayer(LayerMask.NameToLayer("UI"));
 		label.SetAnchor(cam.transform);
+		int absMarginHoriz = 5;
+		int absMarginVert = 0;
 		if (index == 0)
 		{
-			label.rightAnchor = new UIRect.AnchorPoint(0f);
-			label.bottomAnchor = new UIRect.AnchorPoint(1f);
 			label.pivot = UIWidget.Pivot.TopLeft;
+			label.leftAnchor.relative = 0f;
+			label.leftAnchor.absolute = absMarginHoriz;
+			label.topAnchor.relative = 1f;
+			label.topAnchor.absolute = -absMarginVert;
+			label.bottomAnchor.relative = 0.9f;
 
 		}
 		else if (index == 1)
 		{
-			label.leftAnchor = new UIRect.AnchorPoint(1f);
-			label.bottomAnchor = new UIRect.AnchorPoint(1f);
 			label.pivot = UIWidget.Pivot.TopRight;
+			label.rightAnchor.relative = 1f;
+			label.rightAnchor.absolute = -absMarginHoriz;
+			label.topAnchor.relative = 1f;
+			label.topAnchor.absolute = -absMarginVert;
+			label.bottomAnchor.relative = 0.9f;
 
 		}
 		else if (index == 2)
 		{
-			label.rightAnchor = new UIRect.AnchorPoint(0f);
-			label.topAnchor = new UIRect.AnchorPoint(0f);
 			label.pivot = UIWidget.Pivot.BottomLeft;
+			label.leftAnchor.relative = 0f;
+			label.leftAnchor.absolute = absMarginHoriz;
+			label.bottomAnchor.relative = 0f;
+			label.bottomAnchor.absolute = absMarginVert;
+			label.topAnchor.relative = 0.1f;
 
 		}
 		else if (index == 3)
 		{
-			label.leftAnchor = new UIRect.AnchorPoint(1f);
-			label.topAnchor = new UIRect.AnchorPoint(0f);
 			label.pivot = UIWidget.Pivot.BottomRight;
+			label.rightAnchor.relative = 1f;
+			label.rightAnchor.absolute = -absMarginHoriz;
+			label.bottomAnchor.relative = 0f;
+			label.bottomAnchor.absolute = absMarginVert;
+			label.topAnchor.relative = 0.1f;
 
 		}
 		score = 0;

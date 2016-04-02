@@ -35,7 +35,7 @@ public class ScoreManager : MonoBehaviour {
 			Team currentTeam = currentTeams[i];
 			currentTeam.teamIndex = i;
 			ScoreLabel label =  Instantiate(scoreLabelPrefab) as ScoreLabel;
-			label.transform.parent = scoreContainer;
+//			label.transform.parent = scoreContainer;
 			label.Initialize(i, currentTeam.color);
 			currentTeam.scoreLabel = label;
 			currentLabels.Add(label);
