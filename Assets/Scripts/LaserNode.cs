@@ -164,7 +164,8 @@ public class LaserNode : MonoBehaviour {
 		nodes.Add(node);
 		node.TurnOn();
 		TakeOverCrossedTeams();
-		GameController.instance.KeepMinimumNodes(team);
+		if (GameController.instance.isPlaying)
+			GameController.instance.KeepMinimumNodes(team);
 		instrument.PlayNote(audioSource, nodes.Count);
 		if (OnNodeTaken != null)
 			OnNodeTaken(node, this);
@@ -239,7 +240,8 @@ public class LaserNode : MonoBehaviour {
 			nodesCopy[i].Validate(nodePoints);
 			instrument.PlayNote(audioSource, i);
 			audioSource.PlayOneShot(GameController.instance.validationSound);
-			team.score += (nodePoints);
+			if (GameController.instance.isPlaying)
+				team.score += (nodePoints);
 			yield return new WaitForSeconds(0.05f);
 		}
 	}

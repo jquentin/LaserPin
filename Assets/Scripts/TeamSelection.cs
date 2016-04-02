@@ -19,6 +19,7 @@ public class TeamSelection : ShowablePanel {
 	public TeamButton[] playerButtons;
 	
 	public UIEventListener playButton;
+	public UIEventListener tutorialButton;
 
 	int nbSelectedButtons
 	{
@@ -46,6 +47,10 @@ public class TeamSelection : ShowablePanel {
 		playButton.onClick += delegate {
 			Hide();
 			GameController.instance.Play();
+		};
+		tutorialButton.onClick += delegate {
+			Hide();
+			TutorialManager.instance.ShowTutorial();
 		};
 	}
 

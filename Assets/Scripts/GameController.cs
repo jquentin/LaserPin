@@ -149,7 +149,18 @@ public class GameController : MonoBehaviour {
 	public int timeGame = 30;
 	public int countdownNbSeconds = 5;
 	private float timeStart;
-	private bool isPlaying = false;
+	private bool _isPlaying = false;
+	public bool isPlaying
+	{
+		get
+		{
+			return _isPlaying;
+		}
+		private set
+		{
+			_isPlaying = value;
+		}
+	}
 	public float overlapAllowSpace = 1.1f;
 	
 	public List<LaserNode> nodes = new List<LaserNode>();
@@ -311,12 +322,13 @@ public class GameController : MonoBehaviour {
 		for (int i = 0 ; i < sortedTeams.Count ; i++)
 		{
 			Team team = sortedTeams[i];
-			CreatedNode(team);
+			CreateNode(team);
 		}
 	}
 
-	void CreatedNode(Team team)
+	public LaserNode CreateNode(Team team)
 	{
+		LaserNode createdNode = null;
 		bool foundPlace = false;
 		Vector3 pos = Vector3.zero;
 		for (int j = 0 ; j < nbAttemptsAtCreating ; j++)
@@ -330,17 +342,25 @@ public class GameController : MonoBehaviour {
 		}
 		if (foundPlace)
 		{
-			LaserNode createdNode = Instantiate(nodePrefab, pos, nodePrefab.transform.rotation) as LaserNode;
-			createdNode.Init(team);
-			nodes.Add(createdNode);
+			createdNode = CreateNode(team, pos);
 		}
+		return createdNode;
 	}
 
-	void CreatedNodes(Team team, int number)
+	public LaserNode CreateNode(Team team, Vector3 position)
+	{
+		print("CreateNode");
+		LaserNode createdNode = Instantiate(nodePrefab, position, nodePrefab.transform.rotation) as LaserNode;
+		createdNode.Init(team);
+		nodes.Add(createdNode);
+		return createdNode;
+	}
+
+	void CreateNodes(Team team, int number)
 	{
 		for (int j = 0 ; j < number ; j++)
 		{
-			CreatedNode(team);
+			CreateNode(team);
 		}
 	}
 
@@ -349,15 +369,16 @@ public class GameController : MonoBehaviour {
 		foreach(Team team in currentTeams)
 		{
 			team.nodes.RemoveAll(node => node == null || node.dead);
-			if (team.nodes.Count < nbNodesAtStart)
-				CreatedNodes(team, nbNodesAtStart - team.nodes.Count);
+			if (GameController.instance.isPlaying)
+				if (team.nodes.Count < nbNodesAtStart)
+					CreateNodes(team, nbNodesAtStart - team.nodes.Count);
 		}
 	}
 
 	public void KeepMinimumNodes(Team team)
 	{
 		if (team.availableNodes.Count < nbNodesAtStart)
-			CreatedNode(team);
+			CreateNode(team);
 	}
 	
 	static bool FasterLineSegmentIntersection(Vector2 p1, Vector2 p2, Vector2 p3, Vector2 p4) {
@@ -401,6 +422,8 @@ public class GameController : MonoBehaviour {
 	public List<LaserNode> IsCrossing(LaserNode nodeA, LaserNode nodeB)
 	{
 		List<LaserNode> res = new List<LaserNode>();
+		if (nodeA == null || nodeB == null)
+			return res;
 		foreach(Team team in currentTeams)
 		{
 			if (team == nodeA.team)
@@ -409,6 +432,8 @@ public class GameController : MonoBehaviour {
 			{
 				for (int i = 0 ; i < path.nodes.Count - 1 ; i++)
 				{
+					if (path.nodes[i] == null || path.nodes[i+1] == null)
+						continue;
 					if (FasterLineSegmentIntersection(nodeA.position, nodeB.position, path.nodes[i].position, path.nodes[i+1].position))
 					{
 						res.Add(path);
