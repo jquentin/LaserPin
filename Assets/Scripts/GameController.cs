@@ -233,6 +233,8 @@ public class GameController : MonoBehaviour {
 		}
 	}
 
+	int indexNode = 0;
+
 	void InitTeams()
 	{
 		ScoreManager.instance.CreateScores(currentTeams);
@@ -334,7 +336,7 @@ public class GameController : MonoBehaviour {
 		for (int j = 0 ; j < nbAttemptsAtCreating ; j++)
 		{
 			pos = randomPosition;
-			if (Physics2D.OverlapCircle(pos, nodePrefab.transform.localScale.x * 0.5f * overlapAllowSpace) == null)
+			if (Physics2D.OverlapCircle(pos, nodePrefab.radius * overlapAllowSpace) == null)
 			{
 				foundPlace = true;
 				break;
@@ -351,8 +353,9 @@ public class GameController : MonoBehaviour {
 	{
 		print("CreateNode");
 		LaserNode createdNode = Instantiate(nodePrefab, position, nodePrefab.transform.rotation) as LaserNode;
-		createdNode.Init(team);
+		createdNode.Init(team, indexNode);
 		nodes.Add(createdNode);
+		indexNode++;
 		return createdNode;
 	}
 

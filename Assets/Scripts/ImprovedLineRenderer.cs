@@ -7,9 +7,23 @@ public class ImprovedLineRenderer : MonoBehaviour {
 	List<LineRenderer> lines = new List<LineRenderer>();
 
 	public Material material;
+	private Material materialInstance;
 	public bool useWorldSpace;
 	public float startWidth;
 	public float endWidth;
+
+	public Color color
+	{
+		set
+		{
+			materialInstance.color = value;
+		}
+	}
+
+	void Awake()
+	{
+		materialInstance = new Material(material);
+	}
 
 	public void SetVertexCount (int count) 
 	{
@@ -22,7 +36,7 @@ public class ImprovedLineRenderer : MonoBehaviour {
 			go.transform.parent = transform;
 			LineRenderer lr = go.AddComponent<LineRenderer>();
 			lr.SetVertexCount(2);
-			lr.material = material;
+			lr.material = materialInstance;
 			lr.useWorldSpace = useWorldSpace;
 			lr.SetWidth(startWidth, endWidth);
 			lines.Add(lr);

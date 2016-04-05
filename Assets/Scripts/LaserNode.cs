@@ -39,7 +39,8 @@ public class LaserNode : MonoBehaviour {
 			{
 				_lineRenderer = gameObject.AddComponent<ImprovedLineRenderer>();
 			}
-			_lineRenderer.material = sphereOn.material;
+			if (sphereOn != null)
+				_lineRenderer.material = sphereOn.material;
 			return _lineRenderer;
 		}
 	}
@@ -62,12 +63,20 @@ public class LaserNode : MonoBehaviour {
 	{
 		set
 		{
-			sphereOn.material.color = value;
-			sphereOn.material.SetColor("_EmissionColor", Color.Lerp(value, Color.black, 0.2f));
-			sphereOn.material.EnableKeyword ("_EMISSION");
-			sphereOff.material.color = value;
-			sphereOff.material.SetColor("_EmissionColor", Color.black);
-			sphereOff.material.EnableKeyword ("_EMISSION");
+			Colorable colorable = GetComponent<Colorable>();
+			if (colorable != null)
+				colorable.SetColor(value);
+			else
+			{
+				sphereOn.material.color = value;
+				sphereOn.material.SetColor("_EmissionColor", Color.Lerp(value, Color.black, 0.2f));
+				sphereOn.material.EnableKeyword ("_EMISSION");
+				sphereOff.material.color = value;
+				sphereOff.material.SetColor("_EmissionColor", Color.black);
+				sphereOff.material.EnableKeyword ("_EMISSION");
+			}
+			scorePopper.Init(team.color);
+			lineRenderer.color = team.color;
 		}
 	}
 
@@ -83,6 +92,14 @@ public class LaserNode : MonoBehaviour {
 		get
 		{
 			return transform.GetOrAddComponent<AudioSource>();
+		}
+	}
+
+	public float radius
+	{
+		get
+		{
+			return transform.localScale.x * GetComponent<CircleCollider2D>().radius;
 		}
 	}
 
@@ -192,13 +209,13 @@ public class LaserNode : MonoBehaviour {
 	void Validate(int scoreGiven)
 	{
 		collider.enabled = false;
-		iTween.ScaleBy(gameObject, iTween.Hash(
-			"amount", 2f * Vector3.one,
+		iTween.ScaleTo(gameObject, iTween.Hash(
+			"scale", 2f * transform.localScale,
 			"time", 0.2f,
 			"easetype", iTween.EaseType.linear));
 		iTween.FadeTo(gameObject, iTween.Hash(
 			"alpha", 0f,
-			"time", 0.2f,
+			"time", 0.1f,
 			"easetype", iTween.EaseType.linear,
 			"oncomplete", "Hide",
 			"oncompletetarget", gameObject));
@@ -207,20 +224,20 @@ public class LaserNode : MonoBehaviour {
 
 	void Hide()
 	{
-		sphereOff.gameObject.SetActive(false);
-		sphereOn.gameObject.SetActive(false);
+//		sphereOff.gameObject.SetActive(false);
+//		sphereOn.gameObject.SetActive(false);
 	}
 
 	void TurnOn()
 	{
-		sphereOn.gameObject.SetActive(true);
-		sphereOff.gameObject.SetActive(false);
+//		sphereOn.gameObject.SetActive(true);
+//		sphereOff.gameObject.SetActive(false);
 	}
 
 	void TurnOff()
 	{
-		sphereOn.gameObject.SetActive(false);
-		sphereOff.gameObject.SetActive(true);
+//		sphereOn.gameObject.SetActive(false);
+//		sphereOff.gameObject.SetActive(true);
 	}
 
 	void DestroyNode()
@@ -246,12 +263,13 @@ public class LaserNode : MonoBehaviour {
 		}
 	}
 
-	public void Init(Team team)
+	public void Init(Team team, int index = 0)
 	{
 		this.team = team;
 		color = team.color;
-		scorePopper.Init(team.color);
 		gameObject.name = "Node-" + team.teamIndex + ":" + team.counterSpawn;
+		foreach(SpriteRenderer sr in GetComponentsInChildren<SpriteRenderer>(true))
+			sr.sortingOrder = sr.sortingOrder + index * 200;
 	}
 
 }
