@@ -3,6 +3,11 @@ using System.Collections;
 
 public class TranslationLoop : TweenLoop {
 
+	protected override string allAxisPropertyName {
+		get {
+			return "position";
+		}
+	}
 	
 	protected override Vector3 coordinatesValues
 	{

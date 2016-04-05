@@ -3,7 +3,7 @@ using System.Collections;
 
 public abstract class TweenLoop : MonoBehaviour {
 	
-	public enum Axis { X, Y, Z }
+	public enum Axis { X, Y, Z, All }
 	
 	public bool constantSpeed = false;
 	public bool setTargetAtStart = false;
@@ -21,6 +21,11 @@ public abstract class TweenLoop : MonoBehaviour {
 	public AudioClip clip;
 	public bool optimized = false;
 
+	abstract protected string allAxisPropertyName
+	{
+		get;
+	}
+
 	private string axisString 
 	{ 
 		get 
@@ -30,7 +35,8 @@ public abstract class TweenLoop : MonoBehaviour {
 			case Axis.X: return "x";
 			case Axis.Y: return "y";
 			case Axis.Z: return "z";
-			default: return "z";
+			case Axis.All: return allAxisPropertyName;
+			default: return allAxisPropertyName;
 			}
 		}
 	}
@@ -61,6 +67,7 @@ public abstract class TweenLoop : MonoBehaviour {
 			case Axis.X: current.x = value; break;
 			case Axis.Y: current.y = value; break;
 			case Axis.Z: current.z = value; break;
+			case Axis.All: current = value * Vector3.one; break;
 			default: current.z = value; break;
 			}
 		}
@@ -138,8 +145,8 @@ public abstract class TweenLoop : MonoBehaviour {
 			if (optimized)
 			{
 				this.relativeCoordinateValue = - amplitude;
-				iTween.RotateTo(gameObject, iTween.Hash(
-					axisString, amplitude + target,
+				Tween(gameObject, iTween.Hash(
+					axisString, (startByLeft ? -1f : 1f) * amplitude + target,
 					"time", time,
 					"easetype", easeType,
 					"islocal", isLocal,
@@ -168,7 +175,7 @@ public abstract class TweenLoop : MonoBehaviour {
 				}
 				else
 				{
-					iTween.RotateTo(gameObject, iTween.Hash(
+					Tween(gameObject, iTween.Hash(
 						axisString, (startByLeft ? -_currentAmplitude : _currentAmplitude) + target,
 						"time", time * 0.5f,
 						"easetype", iTween.EaseType.easeOutSine,
@@ -182,7 +189,7 @@ public abstract class TweenLoop : MonoBehaviour {
 			iTween.Stop(gameObject, "rotate");
 			if (!optimized && comeBack)
 			{
-				iTween.RotateTo(gameObject, iTween.Hash(
+				Tween(gameObject, iTween.Hash(
 					axisString, target,
 					"time", 0.2f,
 					"easetype", easeType,

@@ -3,6 +3,12 @@ using System.Collections;
 
 public class RotationLoop : TweenLoop {
 
+	protected override string allAxisPropertyName {
+		get {
+			return "rotation";
+		}
+	}
+
 	protected override Vector3 coordinatesValues
 	{
 		get
