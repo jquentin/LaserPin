@@ -59,6 +59,12 @@ public class LaserNode : MonoBehaviour {
 	public MeshRenderer sphereOn;
 	public MeshRenderer sphereOff;
 
+	public Sprite faceOn;
+	public Sprite faceOff;
+	public SpriteRenderer face;
+	public List<GameObject> objectsOn;
+	public List<GameObject> objectsOff;
+
 	private Color color
 	{
 		set
@@ -232,12 +238,24 @@ public class LaserNode : MonoBehaviour {
 	{
 //		sphereOn.gameObject.SetActive(true);
 //		sphereOff.gameObject.SetActive(false);
+		face.sprite = faceOn;
+		foreach(GameObject go in objectsOn)
+			go.SetActive(true);
+		foreach(GameObject go in objectsOff)
+			go.SetActive(false);
+		GetComponent<ScaleLoop>().Wobble(false);
 	}
 
 	void TurnOff()
 	{
 //		sphereOn.gameObject.SetActive(false);
 //		sphereOff.gameObject.SetActive(true);
+		face.sprite = faceOff;
+		foreach(GameObject go in objectsOn)
+			go.SetActive(false);
+		foreach(GameObject go in objectsOff)
+			go.SetActive(true);
+		GetComponent<ScaleLoop>().Wobble(true);
 	}
 
 	void DestroyNode()
