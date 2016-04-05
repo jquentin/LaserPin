@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -48,6 +48,7 @@ public class TutorialManager : MonoBehaviour {
 
 	public void ShowTutorial()
 	{
+		ScoreManager.instance.DestroyScores();
 		GameController.instance.teams[0].isUsed = true;
 		GameController.instance.teams[1].isUsed = true;
 		tutorialUI.SetActive(true);
@@ -58,6 +59,8 @@ public class TutorialManager : MonoBehaviour {
 
 	public void EndTutorial()
 	{
+		GameController.instance.teams[0].isUsed = false;
+		GameController.instance.teams[1].isUsed = false;
 		StopCurrentStep();
 		Reset();
 		tutorialUI.SetActive(false);
@@ -214,9 +217,9 @@ public class TutorialManager : MonoBehaviour {
 		yield return new WaitForSeconds(0.1f);
 		tutorialHand2.MoveTo(posB1 + Vector3.back, 1.3f);
 		yield return new WaitForSeconds(2f);
-		tutorialHand1.UnactivateTouch();
-		yield return new WaitForSeconds(0.5f);
 		tutorialHand2.UnactivateTouch();
+		yield return new WaitForSeconds(1f);
+		tutorialHand1.UnactivateTouch();
 		yield return new WaitForSeconds(0.5f);
 		tutorialHand1.Hide();
 		tutorialHand2.Hide();

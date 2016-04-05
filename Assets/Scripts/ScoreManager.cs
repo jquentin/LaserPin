@@ -22,7 +22,7 @@ public class ScoreManager : MonoBehaviour {
 
 	private List<ScoreLabel> currentLabels = new List<ScoreLabel>();
 
-	public void CreateScores(List<Team> currentTeams)
+	public void DestroyScores()
 	{
 		foreach (ScoreLabel sl in currentLabels)
 		{
@@ -30,6 +30,11 @@ public class ScoreManager : MonoBehaviour {
 				Destroy(sl.gameObject);
 		}
 		currentLabels.Clear();
+	}
+
+	public void CreateScores(List<Team> currentTeams)
+	{
+		DestroyScores();
 		for (int i = 0 ; i < currentTeams.Count ; i++)
 		{
 			Team currentTeam = currentTeams[i];
