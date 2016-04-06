@@ -65,6 +65,9 @@ public class LaserNode : MonoBehaviour {
 	public List<GameObject> objectsOn;
 	public List<GameObject> objectsOff;
 
+	public List<AudioClip> soundsOn;
+	public List<AudioClip> soundsOff;
+
 	private Color color
 	{
 		set
@@ -141,7 +144,7 @@ public class LaserNode : MonoBehaviour {
 		this.TurnOn();
 		if (OnNodeTaken != null)
 			OnNodeTaken(this, this);
-		instrument.PlayNote(audioSource, nodes.Count);
+//		instrument.PlayNote(audioSource, nodes.Count);
 	}
 
 	void OnETMouseDrag(Gesture gesture)
@@ -189,7 +192,7 @@ public class LaserNode : MonoBehaviour {
 		TakeOverCrossedTeams();
 		if (GameController.instance.isPlaying)
 			GameController.instance.KeepMinimumNodes(team);
-		instrument.PlayNote(audioSource, nodes.Count);
+//		instrument.PlayNote(audioSource, nodes.Count);
 		if (OnNodeTaken != null)
 			OnNodeTaken(node, this);
 	}
@@ -244,6 +247,7 @@ public class LaserNode : MonoBehaviour {
 		foreach(GameObject go in objectsOff)
 			go.SetActive(false);
 		GetComponent<ScaleLoop>().Wobble(false);
+		audioSource.PlayOneShotControlled(soundsOn);
 	}
 
 	void TurnOff()
@@ -256,6 +260,7 @@ public class LaserNode : MonoBehaviour {
 		foreach(GameObject go in objectsOff)
 			go.SetActive(true);
 		GetComponent<ScaleLoop>().Wobble(true);
+		audioSource.PlayOneShotControlled(soundsOff);
 	}
 
 	void DestroyNode()
