@@ -72,7 +72,7 @@ public class LaserNode : MonoBehaviour {
 	{
 		set
 		{
-			Colorable colorable = GetComponent<Colorable>();
+			Colorable colorable = GetComponentInChildren<Colorable>();
 			if (colorable != null)
 				colorable.SetColor(value);
 			else
@@ -246,7 +246,7 @@ public class LaserNode : MonoBehaviour {
 			go.SetActive(true);
 		foreach(GameObject go in objectsOff)
 			go.SetActive(false);
-		GetComponent<ScaleLoop>().Wobble(false);
+//		GetComponent<ScaleLoop>().Wobble(false);
 		audioSource.PlayOneShotControlled(soundsOn);
 	}
 
@@ -259,14 +259,14 @@ public class LaserNode : MonoBehaviour {
 			go.SetActive(false);
 		foreach(GameObject go in objectsOff)
 			go.SetActive(true);
-		GetComponent<ScaleLoop>().Wobble(true);
+//		GetComponent<ScaleLoop>().Wobble(true);
 		audioSource.PlayOneShotControlled(soundsOff);
 	}
 
 	void DestroyNode()
 	{
 		dead = true;
-		GetComponent<FaceControl>().enabled = false;
+		GetComponentInChildren<FaceControl>().enabled = false;
 	}
 
 	IEnumerator ValidateNodes()
@@ -294,6 +294,12 @@ public class LaserNode : MonoBehaviour {
 		gameObject.name = "Node-" + team.teamIndex + ":" + team.counterSpawn;
 		foreach(SpriteRenderer sr in GetComponentsInChildren<SpriteRenderer>(true))
 			sr.sortingOrder = sr.sortingOrder + index * 200;
+	}
+
+	void OnDrawGizmosSelected () 
+	{
+		Gizmos.color = new Color(1f, 0f, 0f, 0.4f);
+		Gizmos.DrawSphere(transform.position,radius);
 	}
 
 }

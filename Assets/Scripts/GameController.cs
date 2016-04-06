@@ -263,11 +263,12 @@ public class GameController : MonoBehaviour {
 	{
 		for (int i = 0 ; i < nbNodesAtStart ; i++)
 		{
-			CreateNodes();
+			yield return StartCoroutine(CreateNodes());
+			yield return new WaitForSeconds(0.05f);
 		}
 		while(true)
 		{
-			CreateNodes();
+			yield return StartCoroutine(CreateNodes());
 			yield return new WaitForSeconds(delayBetweenSpawns);
 		}
 	}
@@ -318,13 +319,14 @@ public class GameController : MonoBehaviour {
 		TeamSelection.instance.Show();
 	}
 
-	void CreateNodes()
+	IEnumerator CreateNodes()
 	{
 		List<Team> sortedTeams = currentTeams.OrderBy(x => x.availableNodes.Count).ToList();
 		for (int i = 0 ; i < sortedTeams.Count ; i++)
 		{
 			Team team = sortedTeams[i];
 			CreateNode(team);
+			yield return new WaitForSeconds(0.05f);
 		}
 	}
 
@@ -355,6 +357,11 @@ public class GameController : MonoBehaviour {
 		LaserNode createdNode = Instantiate(nodePrefab, position, nodePrefab.transform.rotation) as LaserNode;
 		createdNode.Init(team, indexNode);
 		nodes.Add(createdNode);
+
+		iTween.ScaleFrom(createdNode.gameObject, iTween.Hash(
+			"scale", Vector3.zero,
+			"time", 0.3f,
+			"easetype", iTween.EaseType.easeOutBack));
 		indexNode++;
 		return createdNode;
 	}
