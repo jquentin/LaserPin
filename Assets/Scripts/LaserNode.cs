@@ -266,6 +266,7 @@ public class LaserNode : MonoBehaviour {
 	void DestroyNode()
 	{
 		dead = true;
+		GetComponent<FaceControl>().enabled = false;
 	}
 
 	IEnumerator ValidateNodes()
