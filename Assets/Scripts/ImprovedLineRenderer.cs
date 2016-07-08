@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class ImprovedLineRenderer : MonoBehaviour {
+public class ImprovedLineRenderer : CustomLineRenderer {
 
 	List<LineRenderer> lines = new List<LineRenderer>();
 
@@ -12,7 +12,7 @@ public class ImprovedLineRenderer : MonoBehaviour {
 	public float startWidth;
 	public float endWidth;
 
-	public Color color
+	public override Color color
 	{
 		set
 		{
@@ -25,7 +25,7 @@ public class ImprovedLineRenderer : MonoBehaviour {
 		materialInstance = new Material(material);
 	}
 
-	public void SetVertexCount (int count) 
+	public override void SetVertexCount (int count) 
 	{
 		foreach(LineRenderer lr in lines)
 			Destroy(lr.gameObject);
@@ -43,7 +43,7 @@ public class ImprovedLineRenderer : MonoBehaviour {
 		}
 	}
 
-	public void SetPosition (int i, Vector3 pos) 
+	public override void SetPosition (int i, Vector3 pos) 
 	{
 		if (i > 0)
 			lines[i - 1].SetPosition(1, pos);
