@@ -28,19 +28,19 @@ public class LaserNode : MonoBehaviour {
 		}
 	}
 
-	private ImprovedLineRenderer _lineRenderer;
-	private ImprovedLineRenderer lineRenderer
+	private CustomLineRenderer _lineRenderer;
+	private CustomLineRenderer lineRenderer
 	{
 		get
 		{
 			if (_lineRenderer == null)
-				_lineRenderer = GetComponent<ImprovedLineRenderer>();
+				_lineRenderer = GetComponent<CustomLineRenderer>();
 			if (_lineRenderer == null)
 			{
-				_lineRenderer = gameObject.AddComponent<ImprovedLineRenderer>();
+				_lineRenderer = gameObject.AddComponent<CustomLineRenderer>();
 			}
-			if (sphereOn != null)
-				_lineRenderer.material = sphereOn.material;
+//			if (sphereOn != null)
+//				_lineRenderer.material = sphereOn.material;
 			return _lineRenderer;
 		}
 	}
